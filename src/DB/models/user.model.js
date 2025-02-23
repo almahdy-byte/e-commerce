@@ -1,6 +1,5 @@
 import { model, Schema, Types } from "mongoose";
 
-
 export const Roles = {
     user:'user',
     admin:'admin'
@@ -59,6 +58,15 @@ const userSchema = new Schema({
         type:String,
         enum:Object.values(Providers),
         default:Providers.system
+    },
+    tempEmail : {
+        type:String
+    },
+    tempEmailOTP:{
+        type:String
+    },
+    changeEmailOTP:{
+            type:String
     }
 })
 

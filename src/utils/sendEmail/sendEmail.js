@@ -1,9 +1,9 @@
 import nodemailer from "nodemailer";
 import EventEmitter from "events";
 export const subjects={
-    confirmEmail:"confirmEmail",
-    resetPassword:"resetPassword",
-    resetEmail:"resetEmail",
+    confirmEmail:"Confirm Email",
+    resetPassword:"Reset Password",
+    resetEmail:"Reset Email",
 }
 Object.freeze(subjects);
 export const sendEmail = async({to , subject ,text ,html})=>{
@@ -29,7 +29,6 @@ async function main() {
     html,
   });
 
-  console.log("Message sent: %s", info.messageId);
 }
 
 main().catch(console.error);
@@ -42,8 +41,11 @@ await sendEmail({to , subject , text , html})
 })
 
 emailEvent.on('resetPassword',async({to , subject = subjects.resetPassword , text , html})=>{
-  await sendEmail({to , subject , text , html})
+  await sendEmail({to , subject , text , html});
+  
   })
-  emailEvent.on('resetEmail',async({to , subject = subjects.resetEmail , text , html})=>{
+emailEvent.on('resetEmail',async({to , subject = 'Change Email' , text , html})=>{
     await sendEmail({to , subject , text , html})
+console.log(1);
+    
     })
