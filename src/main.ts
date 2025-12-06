@@ -8,12 +8,13 @@ async function bootstrap() {
 
   const app = await NestFactory.create(AppModule);
   app.use(queryParser)
-  await app.listen(Number(process.env.PORT as string));
   app.useGlobalPipes(new ValidationPipe({
     whitelist: true,
-    transform: true,
-
+    transform: false,
+    forbidNonWhitelisted: true,
   }));
+  
+  await app.listen(Number(process.env.PORT as string));
   console.log(`Server is running on port ${process.env.PORT}`);
   console.log(`DB is running on port ${process.env.DB_URI}`);
 }

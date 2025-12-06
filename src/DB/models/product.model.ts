@@ -1,6 +1,6 @@
 import { MongooseModule, Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
 import { HydratedDocument, Types } from "mongoose";
-import {  ProductImageType } from "src/common/types/image.type";
+import {   ImageType } from "src/common/types/image.type";
 
 @Schema({ timestamps: true })
 export class Product{
@@ -76,7 +76,7 @@ export class Product{
             }
         ] 
     })
-        images: ProductImageType[]
+        images: ImageType[];
 
     @Prop({
         type: String,
@@ -98,4 +98,4 @@ export const ProductModel = MongooseModule.forFeature([{
     name: Product.name,
     schema: ProductSchema,
 }]);
-export type ProductType = HydratedDocument<Product> & Document;
+export type ProductType = HydratedDocument<Product> ;

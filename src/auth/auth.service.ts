@@ -42,6 +42,9 @@ export class AuthService {
         if(!compare(body.password, user.password)){
             throw new BadRequestException('Email or password is incorrect')
         }
+        if(!user.isConfirmed){
+            throw new BadRequestException('Please confirm your email to proceed')
+        }
         const token = this.tokenService.generateToken(
             {id: user._id}, { expiresIn: '1w' })
         return {token}

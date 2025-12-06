@@ -19,10 +19,12 @@ export class CloudInterceptor implements NestInterceptor{
             }
         return next.handle().pipe(
             catchError(async (err:Error) => {
-                if(request.folder) {
-                    await this.cloudService.deleteFolder(request.folder)
+
+
+                    request.body.image.public_id && await this.cloudService.deleteFile(request.body.image.public_id)
+                    request.body.folder && await this.cloudService.deleteFolder(request.body.folder)
+                    
                     throw err
-                }
             }
         )
         )
@@ -34,8 +36,12 @@ export class CloudInterceptor implements NestInterceptor{
 export class CloudInterceptorMultiFiles implements NestInterceptor{
     constructor(private readonly cloudService : CloudService) { }
     async intercept(context : ExecutionContext , next : CallHandler<any> , ):Promise<Observable<any>> {
+
+
+        
         const request = context.switchToHttp().getRequest();
-        const files:Express.Multer.File[] = request.files;        
+        const files:Express.Multer.File[] = request.files; 
+               
         if(files && files.length) {
             const folder = Math.ceil(Math.random() * 10000 + 9999).toString()
             const images:{public_id , secure_url}[] = []
@@ -45,18 +51,26 @@ export class CloudInterceptorMultiFiles implements NestInterceptor{
                 folder : folder,
             })
         
+            
             images.push({public_id, secure_url})
             }
 
             request.body.images = images
             request.body.folder = folder
             }
+
+            
         return next.handle().pipe(
             catchError(async (err:Error) => {
-                if(request.folder) {
-                    await this.cloudService.deleteFolder(request.folder)
+                    request.body.images?.length && Promise.all(
+                        request.body.images.map(async (image) => {
+                            console.log(image);
+                            
+                            await this.cloudService.deleteFile(image.public_id)
+                        })
+                    ).then(async () => {request.body.folder && await this.cloudService.deleteFolder(request.body.folder) })
                     throw err
-                }
+
             }
         )
         )

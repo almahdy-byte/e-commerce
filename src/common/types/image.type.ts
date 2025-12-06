@@ -1,9 +1,15 @@
+import {  IsNotEmpty, IsString } from "class-validator";
+
 export interface ImageType {
     public_id: string,
     secure_url: string
 }  
+export class ProductImage {
+  @IsString()
+  @IsNotEmpty()
+  public_id: string;
 
-export interface ProductImageType {
-    public_id: string,
-    secure_url: string,
+  @IsString()
+  @IsNotEmpty()
+  secure_url: string;
 }

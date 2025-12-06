@@ -3,6 +3,8 @@ import { UserType } from 'src/DB/models/user.model';
 import { ProductRepo } from 'src/DB/repos/product.repo';
 import { CategoryRepo } from 'src/DB/repos/category.repo';
 import { ObjectId } from 'mongoose';
+import { AddProductDTO } from './DTOs/product.dto';
+
 
 @Injectable()
 export class ProductService {
@@ -10,21 +12,27 @@ export class ProductService {
         private readonly productRepo: ProductRepo,
         private readonly categoryRepo: CategoryRepo
     ) {}
-
-    async addProduct(addProductData:any , user: UserType, files: Express.Multer.File[], categoryId: ObjectId) {
-
+    async addProduct(addProductData:AddProductDTO , user: UserType, files: Express.Multer.File[], categoryId: ObjectId) {
+        
         const {name, description, price, stock , folder , images } = addProductData;
         const isCategoryExist = await this.categoryRepo.findById({ _id: categoryId });
 
-
+    
+        
+        if(price == undefined || isNaN(Number(price))) {
+            throw new BadRequestException('Price must be a number');
+        }
+        
         
         if (!isCategoryExist) {
             throw new BadRequestException('Category not found');
         }
 
         if (!files || !files.length) {
-            throw new Error('No image files uploaded');
+            throw new BadRequestException('No image files uploaded');
         }
+            
+
         const document = {
             name,
             description,
@@ -35,9 +43,12 @@ export class ProductService {
             folder,
             images 
             }
-        
+            
+
+        console.log({document});
         const product = await this.productRepo.create(document);
-        console.log({product} , typeof product.price);
+
+            
         
         return product;
     }
@@ -52,7 +63,10 @@ export class ProductService {
             sort,
             limit,
             skip: page ? (page - 1) * limit : 0,
-        })
+        });
+        if(!products.length) {
+            throw new BadRequestException('No products found');
+        }
         return products;
     }
 }

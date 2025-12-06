@@ -22,6 +22,8 @@ export class Auth implements CanActivate{
         const user = await this.userRepo.findById({_id:decoded.id});
         if(!user)
             throw new BadGatewayException('user not found')
+        if(!user.isConfirmed)
+            throw new BadGatewayException('please confirm your email to proceed')
         request.user = user
         return true
         

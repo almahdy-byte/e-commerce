@@ -2,8 +2,9 @@ import {  IsEmail, IsEnum, IsNotEmpty, IsOptional, IsString, IsDate } from 'clas
 import { Gender, UserRole } from '../../common/user.enums';
 import { Type } from 'class-transformer';
 export class RegisterDto {
-    @IsEmail()
+    
     @IsNotEmpty()
+    @IsEmail()
     email: string;
     
     @IsString()

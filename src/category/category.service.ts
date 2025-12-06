@@ -6,21 +6,21 @@ import { ObjectId } from 'mongoose';
 import { UserRole } from 'src/common/user.enums';
 import { CloudService } from 'src/common/utils/cloudService/cloud.service';
 import slugify from 'slugify';
+import { CategoryType } from 'src/DB/models/category.model';
 @Injectable()
 export class CategoryService {
     constructor(private readonly categoryRepo: CategoryRepo , 
         private readonly cloudinaryService: CloudService
     ){}
 
-        async createCategory(createCategory: CreateCategoryDTO , user : UserType){
+
+    async createCategory(createCategory: CreateCategoryDTO , user : UserType) {
             const {categoryName , folder , image} = createCategory            
-            const existingCategory = await this.categoryRepo.findOne({
-                filter: {
-                    categoryName: categoryName,
-                }
-            });
+            const existingCategory = await this.categoryRepo.findOne({filter : {categoryName}});
+            console.log(folder);
+            
             if (existingCategory) {
-                throw new BadRequestException('Category name already exists');
+                throw new BadRequestException('Category name already exists' );
             }
         const category = await this.categoryRepo.create({
             categoryName,
@@ -31,23 +31,28 @@ export class CategoryService {
         
         return category
     }
+    async deleteCategory(categoryId: ObjectId, user: UserType): Promise<{message: string}> {
 
-    async deleteCategory(categoryId: ObjectId, user: UserType) {
+
         const category = await this.categoryRepo.findById({_id : categoryId})
-        console.log({category , categoryId}) ;
         
         if (!category) {
-            throw new BadRequestException('Category not found')
+            throw new Error('Category not found')
         }
         if (category.createdBy.toString() !== user._id.toString() && user.role !== UserRole.ADMIN) {
             throw new BadGatewayException('You are not authorized to delete this category')
         }
-        if(category.image){
+
+        if(category?.image){
+            await this.cloudinaryService.deleteFile(category.image.public_id)
             await this.cloudinaryService.deleteFolder(category.folder)
         }
+        
         await this.categoryRepo.deleteById({_id : categoryId})
+
         return { message: 'Category deleted successfully' }
-}
+
+    }
     async updateCategory(categoryId: ObjectId, user: UserType, updateData: Partial<CreateCategoryDTO>) {
         const category = await this.categoryRepo.findById({ _id: categoryId });
         if (!category) {
@@ -79,5 +84,5 @@ export class CategoryService {
         category.updatedBy = user._id;
         await category.save();
         return {category};
-}
+    }
 }

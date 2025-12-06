@@ -1,6 +1,6 @@
-import { IsString, IsNotEmpty, IsArray, IsNumber } from 'class-validator';
-import { ProductImageType } from 'src/common/types/image.type';
-import { Transform } from 'class-transformer';
+import { IsString, IsNotEmpty, IsArray, IsNumber, ValidateNested } from 'class-validator';
+import {ImageType , ProductImage } from 'src/common/types/image.type';
+import { Transform, Type } from 'class-transformer';
 
 export class AddProductDTO {
   @IsString()
@@ -11,21 +11,24 @@ export class AddProductDTO {
   @IsNotEmpty()
   description: string;
 
-  @Transform(({ value }) => Number(value)) // 👈 التحويل هنا
-  @IsNumber()
   @IsNotEmpty()
+  @Transform(({ value }) => Number(value)) 
+  @IsNumber()
   price: number;
 
   @IsString()
   @IsNotEmpty()
   folder: string;
 
-  @Transform(({ value }) => Number(value)) // 👈 التحويل هنا
-  @IsNumber()
   @IsNotEmpty()
+  @Transform(({ value }) =>Number(value)) 
+  @IsNumber()
   stock: number;
 
 
-  @IsArray()
-  images: ProductImageType[];
+@IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => ProductImage  )
+  images: ImageType[];
 }
+

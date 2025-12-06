@@ -1,7 +1,9 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import {  UserType } from 'src/DB/models/user.model';
 import { CartRepo } from 'src/DB/repos/cart.repo';
 import { ProductRepo } from 'src/DB/repos/product.repo';
+import { AddTOCart } from './DTO';
+
 
 @Injectable()
 export class CartService {
@@ -10,17 +12,18 @@ export class CartService {
         private readonly cartRepo: CartRepo,
     ){}
 
-    async addToCart(body : any, user: UserType) {
-        const { productId , quantity} = body;
-        const product = await this.productRepo.findById({ _id: productId });
+    async addToCart(body : AddTOCart, productId: any, user: UserType) {
+        const { quantity} = body;
+
+        const product = await this.productRepo.findById({ _id: productId});
         if (!product) {
-            throw new Error('Product not found');
+            throw new NotFoundException('Product not found');
         }
         if(product.stock <= 0) {
-            throw new Error('Product out of stock');
+            throw new BadRequestException('Product out of stock');
         }
-        if( product.stock < quantity || quantity <= 0) {
-            throw new Error('Product quantity is not available please select another quantity');
+        if( product.stock < quantity ) {
+            throw new BadRequestException('Product quantity is not available please select another quantity');
         }
         product.stock -= quantity;
         let cart = await this.cartRepo.findOne({

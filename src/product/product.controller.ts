@@ -22,9 +22,10 @@ export class ProductController {
         FilesInterceptor('images', 4 ,MulterOptions ),
         CloudInterceptorMultiFiles)
     async addProduct(@Body() addProductDate : AddProductDTO  , @Req() req:Request ,  @UploadedFiles() files: Express.Multer.File[] , @Param('categoryId') categoryId: ObjectId) {
-        const user = req['user'];
+        const user = req['user'];    
         return await this.productServices.addProduct(addProductDate , user , files , categoryId);
     }
+
     @Get()
     async getProducts(@Req() req:Request) {
         const parsedQuery = req['parsedQuery'];
